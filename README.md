@@ -1,2 +1,2 @@
-# sements_effort_job
-github action daily scheduled job to fetch and save segments effort count values 
+# Segments Effort Scheduled Job
+GitHub Action daily scheduled job to fetch and save segments effort count data 
