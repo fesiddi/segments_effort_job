@@ -33,7 +33,7 @@ def main():
 
 def fetch_and_write_segments_stats(dao: SegmentStatsDAO):
     """Fetch and write effort stats for all segments in the segment_ids_dict into the database."""
-    Logger.debug("Fetching and writing segment stats...")
+    Logger.debug("Starting script to fetch and update segment stats...")
     for location, segments in segment_ids.items():
         for segment_id in segments.keys():
             segment_stats = fetch_segment_effort_stats(segment_id)

@@ -19,7 +19,7 @@ class Logger:
         if Logger.logger is None:
             Logger.logger = logging.getLogger(name)
             Logger.logger.addFilter(ContextFilter())
-            Logger.logger.setLevel(logging.DEBUG)
+            Logger.logger.setLevel(logging.INFO)
 
             formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 

@@ -77,7 +77,7 @@ class Database:
                 upsert=True,
             )
 
-        Logger.debug("Data written to MongoDB")
+        Logger.debug(f"Data for segment {segment.id} written to DB")
 
     def get_segment_effort_data(self, segment_id):
         Logger.debug(f"Fetching data for segment {segment_id} from MongoDB")
@@ -93,7 +93,8 @@ class Database:
             logs = f.readlines()
             # remove the \n character from each line
             logs = [log.strip() for log in logs]
-            self.insert_log_entry({"log": logs})
+            time = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+            self.insert_log_entry({time: logs})
 
     def insert_log_entry(self, log_entry):
         """Insert a log entry into the log collection in the database."""

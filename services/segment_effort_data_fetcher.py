@@ -6,10 +6,9 @@ from models.segment_effort_data import SegmentEffortData
 
 def fetch_segment_effort_stats(segment_id: str) -> SegmentEffortData:
     """Fetch effort stats for a segment and return a dictionary with the data."""
-    Logger.debug(f"Fetching stats for segment {segment_id}...")
     strava_api = StravaAPI()
     segment_data = strava_api.get_segment(segment_id)
-
+    Logger.debug(f"Fetched stats for segment: {segment_id}")
     segment_effort_data = SegmentEffortData(
         id=segment_data.get("id"),
         name=segment_data.get("name"),

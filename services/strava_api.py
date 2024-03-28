@@ -22,6 +22,7 @@ class StravaAPI:
         }
 
     def _make_request(self, url: str) -> Dict[str, Any]:
+        Logger.info(f"Fetching Strava for segment: {url.split('/')[-1]}")
         response = requests.get(url, headers=self.headers)
         if response.status_code == 401:
             self._refresh_token()
@@ -33,6 +34,7 @@ class StravaAPI:
         return response.json()
 
     def _refresh_token(self):
+        Logger.info("Refreshing strava access token.")
         auth_request = requests.post(
             f"https://www.strava.com/api/v3/oauth/token",
             data={
@@ -46,5 +48,7 @@ class StravaAPI:
             Logger.error("Error refreshing strava access token.")
             Logger.error(auth_request.json())
             raise Exception("Error refreshing strava access token.")
+        os.environ["STRAVA_REFRESH_TOKEN"] = auth_request.json().get("refresh_token")
         self.strava_access_token = auth_request.json().get("access_token")
+        os.environ["STRAVA_ACCESS_TOKEN"] = self.strava_access_token
         self.headers = {"Authorization": f"Bearer {self.strava_access_token}"}
