@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from db.database import Database, DatabaseConnectionError
 from services.segment_stats_dao import SegmentStatsDAO
 from utils.logger import Logger
-from segments_data.segment_ids import test_segment_ids_dict as segment_ids_dict
+from segments_data.segment_ids import segment_ids
 from services.segment_effort_data_fetcher import fetch_segment_effort_stats
 
 
@@ -34,7 +34,7 @@ def main():
 def fetch_and_write_segments_stats(dao: SegmentStatsDAO):
     """Fetch and write effort stats for all segments in the segment_ids_dict into the database."""
     Logger.debug("Fetching and writing segment stats...")
-    for location, segments in segment_ids_dict.items():
+    for location, segments in segment_ids.items():
         for segment_id in segments.keys():
             segment_stats = fetch_segment_effort_stats(segment_id)
             dao.update_segment_effort_data(segment_stats)
