@@ -1,2 +1,2 @@
 # Segments Effort Scheduled Job
-GitHub Action daily scheduled job to fetch and save segments effort count data 
+GitHub Action daily scheduled job to fetch and save segments effort count data from strava api
