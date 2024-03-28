@@ -1,4 +1,5 @@
 import sys
+import time
 
 from database import Database, DatabaseConnectionError
 from segment_stats_dao import SegmentStatsDAO
@@ -9,6 +10,7 @@ from segment_effort_data_fetcher import fetch_segment_effort_stats
 
 def main():
     """Main function to fetch and write segment stats."""
+    Logger.info("Starting segment effort stats update...")
     try:
         db = Database()
         dao = SegmentStatsDAO(db)
@@ -19,9 +21,10 @@ def main():
     except Exception as e:
         Logger.error(f"An unexpected error occurred: {e}")
         sys.exit(1)
-
-    db.close_connection()
     Logger.info("Segments effort stats update completed!")
+    time.sleep(1)
+    db.upload_logs_to_db()
+    db.close_connection()
     sys.exit(0)
 
 

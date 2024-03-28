@@ -89,6 +89,16 @@ class Database:
             return None
         return segment_effort_data
 
+    def upload_logs_to_db(self):
+        """Read the log file and upload its contents to the database."""
+        with open('logfile.log', 'r') as f:
+            logs = f.readlines()
+            self.insert_log_entry({"log": logs})
+
+    def insert_log_entry(self, log_entry):
+        """Insert a log entry into the log collection in the database."""
+        self.db.logs.insert_one(log_entry)
+
     def close_connection(self):
         self.client.close()
         Logger.debug("Connection to MongoDB closed")
