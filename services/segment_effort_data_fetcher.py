@@ -1,7 +1,7 @@
 from datetime import datetime
-from logger import Logger
-from strava_api import StravaAPI
-from segment_effort_data import SegmentEffortData
+from utils.logger import Logger
+from services.strava_api import StravaAPI
+from models.segment_effort_data import SegmentEffortData
 
 
 def fetch_segment_effort_stats(segment_id: str) -> SegmentEffortData:

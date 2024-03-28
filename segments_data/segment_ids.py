@@ -1,6 +1,4 @@
-from typing import Dict
-
-segment_ids_dict: Dict[str, Dict[str, str]] = {
+segment_ids_dict = {
     "alghero": {
         "28448435": "Merenderos ps1",
         "28448438": "Maranatz ps2",
@@ -43,4 +41,11 @@ segment_ids_dict: Dict[str, Dict[str, str]] = {
         "14148006": "Tornanti Ps3",
         "14087488": "PS1 2018",
     },
+}
+
+test_segment_ids_dict = {
+    "alghero": {
+        "28448435": "Merenderos ps1",
+        "28448438": "Maranatz ps2",
+    }
 }

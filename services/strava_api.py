@@ -1,6 +1,6 @@
 import requests
 import os
-from logger import Logger
+from utils.logger import Logger
 from typing import Any, Dict
 
 

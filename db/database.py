@@ -1,11 +1,9 @@
 import os
 from datetime import datetime
-
 from pymongo.errors import ConfigurationError
 from pymongo.mongo_client import MongoClient
-
-from logger import Logger
-from segment_effort_data import SegmentEffortData
+from utils.logger import Logger
+from models.segment_effort_data import SegmentEffortData
 
 
 class DatabaseConnectionError(Exception):
@@ -93,6 +91,8 @@ class Database:
         """Read the log file and upload its contents to the database."""
         with open('logfile.log', 'r') as f:
             logs = f.readlines()
+            # remove the \n character from each line
+            logs = [log.strip() for log in logs]
             self.insert_log_entry({"log": logs})
 
     def insert_log_entry(self, log_entry):

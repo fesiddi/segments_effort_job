@@ -1,16 +1,19 @@
 import sys
 import time
+from dotenv import load_dotenv
 
-from database import Database, DatabaseConnectionError
-from segment_stats_dao import SegmentStatsDAO
-from logger import Logger
-from segment_ids import segment_ids_dict
-from segment_effort_data_fetcher import fetch_segment_effort_stats
+
+from db.database import Database, DatabaseConnectionError
+from services.segment_stats_dao import SegmentStatsDAO
+from utils.logger import Logger
+from segments_data.segment_ids import test_segment_ids_dict as segment_ids_dict
+from services.segment_effort_data_fetcher import fetch_segment_effort_stats
 
 
 def main():
     """Main function to fetch and write segment stats."""
     Logger.info("Starting segment effort stats update...")
+    load_dotenv()
     try:
         db = Database()
         dao = SegmentStatsDAO(db)

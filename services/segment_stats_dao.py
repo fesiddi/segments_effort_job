@@ -1,5 +1,5 @@
-from database import Database
-from segment_effort_data import SegmentEffortData
+from db.database import Database
+from models.segment_effort_data import SegmentEffortData
 
 
 class SegmentStatsDAO:
