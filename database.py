@@ -29,8 +29,8 @@ class Database:
         return cls._instance
 
     def __init__(self):
-        self.db_uri = os.environ["DB_URI"]
-        self.db_name = os.environ["DB_NAME"]
+        self.db_uri = os.getenv("DB_URI")
+        self.db_name = os.getenv("DB_NAME")
 
         if not self.db_uri or not self.db_name:
             Logger.error("DB_URI and DB_NAME environment variables must be set")
