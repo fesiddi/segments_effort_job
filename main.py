@@ -10,13 +10,13 @@ from segments_data.segment_ids import segment_ids
 
 def main():
     """Main function to fetch and write segment stats."""
-    Logger.info("Starting segment effort stats update...")
+    Logger.info("Starting script to update segments and effort data...")
     load_dotenv()
     try:
         config = Config()
         db = Database(config)
         strava_api = StravaAPI(config)
-        segments_repository = SegmentsRepository(db)
+        segments_repository = SegmentsRepository(db, config)
 
         Logger.debug("Starting script to fetch and update segment stats...")
         for location, segments in segment_ids.items():
@@ -26,7 +26,7 @@ def main():
     except DatabaseConnectionError as e:
         Logger.error(f"Error fetching segment stats: {e}")
         sys.exit(1)
-    Logger.info("Segments effort stats update completed!")
+    Logger.info("Script execution completed!")
     db.close_connection()
     sys.exit(0)
 
