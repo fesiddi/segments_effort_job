@@ -1,8 +1,8 @@
-import os
 from datetime import datetime
 from pymongo.errors import ConfigurationError
 from pymongo.mongo_client import MongoClient
 from utils.logger import Logger
+from utils.config import Config
 from models.segment_effort_data import SegmentEffortData
 
 
@@ -26,9 +26,10 @@ class Database:
             cls._instance = super(Database, cls).__new__(cls, *args, **kwargs)
         return cls._instance
 
-    def __init__(self):
-        self.db_uri = os.getenv("DB_URI")
-        self.db_name = os.getenv("DB_NAME")
+    def __init__(self, config: Config):
+        self.config = config
+        self.db_uri = self.config.DB_URI
+        self.db_name = self.config.DB_NAME
 
         if not self.db_uri or not self.db_name:
             Logger.error("DB_URI and DB_NAME environment variables must be set")
@@ -48,7 +49,7 @@ class Database:
             raise DatabaseConnectionError(f"An error occurred: {e}")
 
     def update_segment_effort_data(self, segment: SegmentEffortData):
-        fetch_date = datetime.now().strftime("%d-%m-%Y")
+        fetch_date = segment.fetch_date
         Logger.debug(f"Writing data for segment {segment.id} to MongoDB")
 
         # Check if an effort with the same fetch_date already exists
@@ -86,6 +87,17 @@ class Database:
             Logger.info(f"No data found for segment {segment_id}")
             return None
         return segment_effort_data
+
+    def save_or_update_full_segment_data(self, segment_data):
+        segment_id = segment_data["id"]
+        Logger.debug(f"Writing full data for segment {segment_id} to MongoDB")
+        existing_document = self.db.segments.find_one({"id": segment_id})
+        if existing_document:
+            self.db.segments.update_one({"_id": existing_document.get("_id")}, {"$set": segment_data})
+            Logger.debug(f"Data for segment {segment_id} updated in DB")
+        else:
+            self.db.segments.insert_one(segment_data)
+            Logger.debug(f"Data for segment {segment_id} written to DB")
 
     def upload_logs_to_db(self):
         """Read the log file and upload its contents to the database."""

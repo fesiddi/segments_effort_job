@@ -6,8 +6,9 @@ from dotenv import load_dotenv
 from db.database import Database, DatabaseConnectionError
 from services.segment_stats_dao import SegmentStatsDAO
 from utils.logger import Logger
+from utils.config import Config
+from services.strava_api import StravaAPI
 from segments_data.segment_ids import segment_ids
-from services.segment_effort_data_fetcher import fetch_segment_effort_stats
 
 
 def main():
@@ -15,14 +16,13 @@ def main():
     Logger.info("Starting segment effort stats update...")
     load_dotenv()
     try:
-        db = Database()
+        config = Config()
+        db = Database(config)
+        strava_api = StravaAPI(config)
         dao = SegmentStatsDAO(db)
-        fetch_and_write_segments_stats(dao)
+        fetch_and_write_segments_stats(dao, strava_api)
     except DatabaseConnectionError as e:
         Logger.error(f"Error fetching segment stats: {e}")
-        sys.exit(1)
-    except Exception as e:
-        Logger.error(f"An unexpected error occurred: {e}")
         sys.exit(1)
     Logger.info("Segments effort stats update completed!")
     time.sleep(1)
@@ -31,13 +31,14 @@ def main():
     sys.exit(0)
 
 
-def fetch_and_write_segments_stats(dao: SegmentStatsDAO):
+def fetch_and_write_segments_stats(dao: SegmentStatsDAO, strava_api: StravaAPI):
     """Fetch and write effort stats for all segments in the segment_ids_dict into the database."""
     Logger.debug("Starting script to fetch and update segment stats...")
     for location, segments in segment_ids.items():
         for segment_id in segments.keys():
-            segment_stats = fetch_segment_effort_stats(segment_id)
-            dao.update_segment_effort_data(segment_stats)
+            segment_data = strava_api.get_segment(segment_id)
+            dao.update_segment_effort_data(segment_data)
+            dao.update_full_segment_data(segment_data)
 
 
 if __name__ == "__main__":

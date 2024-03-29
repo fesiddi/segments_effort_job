@@ -2,24 +2,17 @@ import requests
 import os
 from utils.logger import Logger
 from typing import Any, Dict
+from utils.config import Config
 
 
 class StravaAPI:
-    def __init__(self):
-        self.strava_access_token = os.environ["STRAVA_ACCESS_TOKEN"]
-        self.headers = {"Authorization": f"Bearer {self.strava_access_token}"}
+    def __init__(self, config: Config):
+        self.config = config
+        self.headers = {"Authorization": f"Bearer {self.config.STRAVA_REFRESH_TOKEN}"}
 
     def get_segment(self, segment_id: str) -> Dict[str, Any]:
-        segment = self._make_request(f"https://www.strava.com/api/v3/segments/{segment_id}")
-        cleaned_segment = self.clean_segment(segment)
-        return cleaned_segment
-
-    def clean_segment(self, segment):
-        return {
-            "name": segment.get("name"),
-            "id": segment.get("id"),
-            "effort_count": segment.get("effort_count"),
-        }
+        segment = self._make_request(f"{self.config.STRAVA_API_URL}/segments/{segment_id}")
+        return segment
 
     def _make_request(self, url: str) -> Dict[str, Any]:
         Logger.info(f"Fetching Strava for segment: {url.split('/')[-1]}")
@@ -38,17 +31,17 @@ class StravaAPI:
         auth_request = requests.post(
             f"https://www.strava.com/api/v3/oauth/token",
             data={
-                "client_id": os.environ["STRAVA_CLIENT_ID"],
-                "client_secret": os.environ["STRAVA_CLIENT_SECRET"],
+                "client_id": self.config.STRAVA_CLIENT_ID,
+                "client_secret": self.config.STRAVA_CLIENT_SECRET,
                 "grant_type": "refresh_token",
-                "refresh_token": os.environ["STRAVA_REFRESH_TOKEN"],
+                "refresh_token": self.config.STRAVA_REFRESH_TOKEN,
             },
         )
         if auth_request.status_code != 200:
             Logger.error("Error refreshing strava access token.")
             Logger.error(auth_request.json())
             raise Exception("Error refreshing strava access token.")
-        os.environ["STRAVA_REFRESH_TOKEN"] = auth_request.json().get("refresh_token")
-        self.strava_access_token = auth_request.json().get("access_token")
-        os.environ["STRAVA_ACCESS_TOKEN"] = self.strava_access_token
-        self.headers = {"Authorization": f"Bearer {self.strava_access_token}"}
+        self.config.STRAVA_REFRESH_TOKEN = auth_request.json().get("refresh_token")
+        self.config.STRAVA_ACCESS_TOKEN = auth_request.json().get("access_token")
+        self.headers = {"Authorization": f"Bearer {self.config.STRAVA_ACCESS_TOKEN}"}
+
