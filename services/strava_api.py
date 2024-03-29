@@ -14,7 +14,7 @@ class StravaAPI:
         return segment
 
     def _handle_request(self, url: str) -> Dict[str, Any]:
-        Logger.info(f"Fetching Strava for segment: {url.split('/')[-1]}")
+        Logger.debug(f"Fetching Strava for segment: {url.split('/')[-1]}")
         response = requests.get(url, headers=self.headers)
         if response.status_code == 401:
             self._refresh_token()

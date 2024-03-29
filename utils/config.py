@@ -3,6 +3,9 @@ import os
 
 class Config:
     STRAVA_API_URL = "https://www.strava.com/api/v3"
+    EFFORT_COLL_NAME = "effort_stats"
+    SEGMENTS_COLL_NAME = "segments"
+    DATE_FORMAT = "%d-%m-%Y"
 
     def __init__(self):
         self.STRAVA_CLIENT_ID = os.getenv("STRAVA_CLIENT_ID")
