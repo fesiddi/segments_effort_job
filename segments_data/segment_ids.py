@@ -16,8 +16,8 @@ segment_ids = {
         "22878074": "Salita Timidone Corta",
         "10681542": "Salita Timidone Lunga",
         "19944639": "Salita Principale punta giglio",
-        "10337227": "Salita poltagre",
-        "11913735": "Sassaia punta giglio"
+        "10337227": "Salita poltagra",
+        "11913735": "discesa Sassaia punta giglio"
     },
     "baunei": {
         "35663742": "PS1 2024",
@@ -31,10 +31,30 @@ segment_ids = {
         "33543696": "Spaccabraccia",
         "36150152": "Scioppino",
     },
+    "carbonia": {
+        "12333786": "DH Monte Leone",
+        "12171561": "PS Tritone d",
+        "13986404": "Ps1 LA VECCHIA DH",
+        "15008043": "prima salita gara carbonia"
+    },
+    "gavoi": {
+        "16182576": "chizzu e noli",
+        "31477685": "ps1 2022",
+        "18333144": "cancello+tittione+andria",
+        "31081958": "mascalzone trail"
+    },
     "marci": {
         "35669866": "Bombonera",
         "33243466": "Voragini",
         "36167901": "Leggendaria",
+    },
+    "nuoro": {
+        "13682199": "murrone",
+        "24196646": "su 'e bitti 2",
+        "16664219": "meditativo",
+        "24770162": "casa del vescovo",
+        "28043315": "toboga 2",
+        "7696074": "La Solitudine - Monte Ortobene",
     },
     "olbia": {
         "16432849": "DH Monte Pino",
