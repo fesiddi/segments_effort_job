@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class SegmentEffortData:
+class EffortDataClass:
     id: str
     name: str
     effort_count: int

@@ -32,9 +32,3 @@ jobs:
         STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
         DB_URI: ${{ secrets.DB_URI }}
         DB_NAME: ${{ secrets.DB_NAME }}
-
-    - name: Upload log file
-      uses: actions/upload-artifact@v4
-      with:
-        name: logfile
-        path: logfile.log

@@ -1,5 +1,4 @@
 import requests
-import os
 from utils.logger import Logger
 from typing import Any, Dict
 from utils.config import Config
@@ -11,10 +10,10 @@ class StravaAPI:
         self.headers = {"Authorization": f"Bearer {self.config.STRAVA_REFRESH_TOKEN}"}
 
     def get_segment(self, segment_id: str) -> Dict[str, Any]:
-        segment = self._make_request(f"{self.config.STRAVA_API_URL}/segments/{segment_id}")
+        segment = self._handle_request(f"{self.config.STRAVA_API_URL}/segments/{segment_id}")
         return segment
 
-    def _make_request(self, url: str) -> Dict[str, Any]:
+    def _handle_request(self, url: str) -> Dict[str, Any]:
         Logger.info(f"Fetching Strava for segment: {url.split('/')[-1]}")
         response = requests.get(url, headers=self.headers)
         if response.status_code == 401:
