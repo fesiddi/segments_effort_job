@@ -1,6 +1,9 @@
 import sys
+from datetime import datetime
 from dotenv import load_dotenv
 from db.database import Database, DatabaseConnectionError
+from models.EnhancedSegment import EnhancedSegment
+from models.RawSegment import RawSegment
 from services.segments_repository import SegmentsRepository
 from utils.logger import Logger
 from utils.config import Config
@@ -22,7 +25,10 @@ def main():
         for location, segments in segment_ids.items():
             for segment_id in segments.keys():
                 segment_data = strava_api.get_segment(segment_id)
-                segments_repository.write_segment_data(segment_data)
+                raw_segment = RawSegment(**segment_data)
+                timestamp = datetime.now().timestamp()
+                enhanced_segment = EnhancedSegment.from_raw_segment(raw_segment, location, timestamp)
+                segments_repository.write_segment_data(enhanced_segment)
     except DatabaseConnectionError as e:
         Logger.error(f"Error fetching segment stats: {e}")
         sys.exit(1)
