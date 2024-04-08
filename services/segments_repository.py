@@ -11,7 +11,7 @@ def map_segment_effort_data(enhanced_segment: EnhancedSegment) -> EffortDataClas
     segment_name = enhanced_segment.name
     effort_count = enhanced_segment.effort_count
     fetch_date = datetime.now().strftime(Config.DATE_FORMAT)
-    return EffortDataClass(str(segment_id), segment_name, effort_count, fetch_date)
+    return EffortDataClass(segment_id, segment_name, effort_count, fetch_date)
 
 
 class SegmentsRepository:
@@ -42,21 +42,26 @@ class SegmentsRepository:
         # Check if an effort with the same fetch_date already exists
         existing_effort = self.db.find_one(
             self.config.EFFORT_COLL_NAME,
-            {"segment_id": segment_effort_data.id, "efforts.fetch_date": fetch_date}
+            {"segment_id": segment_effort_data.segment_id, "efforts.fetch_date": fetch_date}
         )
 
         if existing_effort:
+            Logger.debug(f"Effort data for segment {segment_effort_data.segment_id} already exists in DB")
+            Logger.debug(f"Existing effort: {existing_effort}")
+            Logger.debug(f"SegmentEffortData: {segment_effort_data}")
             # If it does, update the effort_count of the existing effort
             self._update_one(
                 self.config.EFFORT_COLL_NAME,
-                {"segment_id": segment_effort_data.id, "efforts.fetch_date": fetch_date},
+                {"segment_id": segment_effort_data.segment_id, "efforts.fetch_date": fetch_date},
                 {"$set": {"efforts.$.effort_count": segment_effort_data.effort_count}},
             )
         else:
+            Logger.debug(f"Effort data for segment {segment_effort_data.segment_id} does not exist in DB")
+            Logger.debug(f"SegmentEffortData: {segment_effort_data}")
             # If it doesn't, add a new effort
             self._update_one(
                 self.config.EFFORT_COLL_NAME,
-                {"segment_id": segment_effort_data.id, "name": segment_effort_data.name},
+                {"segment_id": segment_effort_data.segment_id},
                 {
                     "$push": {
                         "efforts": {
@@ -65,10 +70,9 @@ class SegmentsRepository:
                         }
                     }
                 },
-                upsert=True,
+                upsert=False,
             )
-
-        Logger.debug(f"Effort data for segment {segment_effort_data.id} written into DB")
+        Logger.debug(f"Effort data for segment {segment_effort_data.segment_id} written into DB")
 
     def update_segment_data(self, segment: EnhancedSegment):
         """Updates data for a segment to the database."""
