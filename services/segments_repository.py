@@ -1,17 +1,18 @@
 from db.database import Database
 from models.EnhancedSegment import EnhancedSegment
-from models.effort_data_class import EffortDataClass
+from models.SegmentEffortData import Effort, SegmentEffortData
 from datetime import datetime
 from utils.logger import Logger
 from utils.config import Config
 
 
-def map_segment_effort_data(enhanced_segment: EnhancedSegment) -> EffortDataClass:
+def map_segment_effort_data(enhanced_segment: EnhancedSegment) -> SegmentEffortData:
     segment_id = enhanced_segment.id
     segment_name = enhanced_segment.name
     effort_count = enhanced_segment.effort_count
     fetch_date = datetime.now().strftime(Config.DATE_FORMAT)
-    return EffortDataClass(segment_id, segment_name, effort_count, fetch_date)
+    effort = Effort(effort_count=effort_count, fetch_date=fetch_date)
+    return SegmentEffortData(segment_id=segment_id, name=segment_name, efforts=[effort])
 
 
 class SegmentsRepository:
@@ -38,7 +39,7 @@ class SegmentsRepository:
     def update_effort_data(self, segment: EnhancedSegment):
         """Updates effort stats for a segment to the database."""
         segment_effort_data = map_segment_effort_data(segment)
-        fetch_date = segment_effort_data.fetch_date
+        fetch_date = segment_effort_data.efforts[0].fetch_date
         # Check if an effort with the same fetch_date already exists
         existing_effort = self.db.find_one(
             self.config.EFFORT_COLL_NAME,
@@ -53,7 +54,7 @@ class SegmentsRepository:
             self._update_one(
                 self.config.EFFORT_COLL_NAME,
                 {"segment_id": segment_effort_data.segment_id, "efforts.fetch_date": fetch_date},
-                {"$set": {"efforts.$.effort_count": segment_effort_data.effort_count}},
+                {"$set": {"efforts.$.effort_count": segment_effort_data.efforts[0].effort_count}},
             )
         else:
             Logger.debug(f"Effort data for segment {segment_effort_data.segment_id} does not exist in DB")
@@ -65,7 +66,7 @@ class SegmentsRepository:
                 {
                     "$push": {
                         "efforts": {
-                            "effort_count": segment_effort_data.effort_count,
+                            "effort_count": segment_effort_data.efforts[0].effort_count,
                             "fetch_date": fetch_date,
                         }
                     }
