@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from pydantic import BaseModel
 
 
@@ -8,8 +8,16 @@ class LocalRider(BaseModel):
 
 
 class TrailBase(BaseModel):
-    coordinates: List[List[float]]
-    name: Optional[str]
+    name: str
+    coordinates: Tuple[float, float] = [0.0, 0.0]
+
+    class ConfigDict:
+        json_schema_extra = {
+            "example": {
+                "name": "Base1",
+                "coordinates": [12.34, 56.78]
+            }
+        }
 
 
 class TrailArea(BaseModel):
@@ -18,4 +26,4 @@ class TrailArea(BaseModel):
     description: str
     local_riders: List[LocalRider]
     instagram: List[str]
-    trail_bases: Optional[List[TrailBase]]
+    trail_bases: Optional[List[TrailBase]] | None = None
