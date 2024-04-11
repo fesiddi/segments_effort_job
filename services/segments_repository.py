@@ -1,17 +1,18 @@
 from db.database import Database
 from models.EnhancedSegment import EnhancedSegment
-from models.effort_data_class import EffortDataClass
+from models.SegmentEffortData import Effort, SegmentEffortData
 from datetime import datetime
 from utils.logger import Logger
 from utils.config import Config
 
 
-def map_segment_effort_data(enhanced_segment: EnhancedSegment) -> EffortDataClass:
+def map_segment_effort_data(enhanced_segment: EnhancedSegment) -> SegmentEffortData:
     segment_id = enhanced_segment.id
     segment_name = enhanced_segment.name
     effort_count = enhanced_segment.effort_count
     fetch_date = datetime.now().strftime(Config.DATE_FORMAT)
-    return EffortDataClass(segment_id, segment_name, effort_count, fetch_date)
+    effort = Effort(effort_count=effort_count, fetch_date=fetch_date)
+    return SegmentEffortData(segment_id=segment_id, name=segment_name, efforts=[effort])
 
 
 class SegmentsRepository:
@@ -35,43 +36,65 @@ class SegmentsRepository:
             Logger.error(f"An error occurred while inserting into the database: {e}")
             raise
 
+    def update_existing_effort(self, segment_effort_data, fetch_date):
+        """Update the effort_count of an existing effort."""
+        self._update_one(
+            self.config.EFFORT_COLL_NAME,
+            {"segment_id": segment_effort_data.segment_id, "efforts.fetch_date": fetch_date},
+            {"$set": {"efforts.$.effort_count": segment_effort_data.efforts[0].effort_count}},
+        )
+
+    def add_new_effort(self, segment_effort_data, fetch_date):
+        """Add a new entry for the efforts array."""
+        self._update_one(
+            self.config.EFFORT_COLL_NAME,
+            {"segment_id": segment_effort_data.segment_id},
+            {
+                "$push": {
+                    "efforts": {
+                        "effort_count": segment_effort_data.efforts[0].effort_count,
+                        "fetch_date": fetch_date,
+                    }
+                }
+            },
+            upsert=False,
+        )
+
+    def create_new_effort_data(self, segment_effort_data):
+        """Create a new effort data for the segment."""
+        self._insert_one(
+            self.config.EFFORT_COLL_NAME,
+            {"segment_id": segment_effort_data.segment_id, "name": segment_effort_data.name,
+             "efforts": [{"effort_count": segment_effort_data.efforts[0].effort_count,
+                          "fetch_date": segment_effort_data.efforts[0].fetch_date}]},
+        )
+
     def update_effort_data(self, segment: EnhancedSegment):
         """Updates effort stats for a segment to the database."""
         segment_effort_data = map_segment_effort_data(segment)
-        fetch_date = segment_effort_data.fetch_date
+        fetch_date = segment_effort_data.efforts[0].fetch_date
         # Check if an effort with the same fetch_date already exists
-        existing_effort = self.db.find_one(
+        existing_effort_data = self.db.find_one(
             self.config.EFFORT_COLL_NAME,
-            {"segment_id": segment_effort_data.segment_id, "efforts.fetch_date": fetch_date}
+            {"segment_id": segment_effort_data.segment_id}
         )
 
-        if existing_effort:
+        if existing_effort_data:
             Logger.debug(f"Effort data for segment {segment_effort_data.segment_id} already exists in DB")
-            Logger.debug(f"Existing effort: {existing_effort}")
+            Logger.debug(f"Existing effort: {existing_effort_data}")
             Logger.debug(f"SegmentEffortData: {segment_effort_data}")
-            # If it does, update the effort_count of the existing effort
-            self._update_one(
-                self.config.EFFORT_COLL_NAME,
-                {"segment_id": segment_effort_data.segment_id, "efforts.fetch_date": fetch_date},
-                {"$set": {"efforts.$.effort_count": segment_effort_data.effort_count}},
-            )
+            # If it does, check if there is an effort with the same fetch_date
+            existing_effort_same_date = next(
+                (effort for effort in existing_effort_data['efforts'] if effort['fetch_date'] == fetch_date), None)
+            if existing_effort_same_date:
+                # If it's the same, update the effort_count of the existing effort
+                self.update_existing_effort(segment_effort_data, fetch_date)
+            else:
+                # If the fetch date is not the same, add a new entry for the efforts array
+                self.add_new_effort(segment_effort_data, fetch_date)
         else:
-            Logger.debug(f"Effort data for segment {segment_effort_data.segment_id} does not exist in DB")
-            Logger.debug(f"SegmentEffortData: {segment_effort_data}")
-            # If it doesn't, add a new effort
-            self._update_one(
-                self.config.EFFORT_COLL_NAME,
-                {"segment_id": segment_effort_data.segment_id},
-                {
-                    "$push": {
-                        "efforts": {
-                            "effort_count": segment_effort_data.effort_count,
-                            "fetch_date": fetch_date,
-                        }
-                    }
-                },
-                upsert=False,
-            )
+            # If it doesn't, create a new effort data for the segment
+            self.create_new_effort_data(segment_effort_data)
         Logger.debug(f"Effort data for segment {segment_effort_data.segment_id} written into DB")
 
     def update_segment_data(self, segment: EnhancedSegment):

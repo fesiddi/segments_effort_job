@@ -15,3 +15,9 @@ class Config:
         self.STRAVA_REFRESH_TOKEN = os.getenv("STRAVA_REFRESH_TOKEN")
         self.DB_URI = os.getenv("DB_URI")
         self.DB_NAME = os.getenv("DB_NAME")
+
+
+class TestConfig(Config):
+    def __init__(self):
+        super().__init__()
+        self.DB_NAME = os.getenv("TEST_DB_NAME")
