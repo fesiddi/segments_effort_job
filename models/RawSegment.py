@@ -108,5 +108,5 @@ class RawSegment(BaseModel):
             value['effort_counts']['female'] = None
         return value
 
-    class Config:
+    class ConfigDict:
         populate_by_name = True
