@@ -1,14 +1,14 @@
 from unittest.mock import patch
 from services.strava_api import StravaAPI
 from dotenv import load_dotenv
-from utils.config import TestConfig
+from utils.config import ConfigForTest
 
 load_dotenv()
 
 
 @patch.object(StravaAPI, 'get_segment')
 def test_get_segment_effort_data(mock_get_segment):
-    config = TestConfig()
+    config = ConfigForTest()
     strava_api = StravaAPI(config)
     segment_id = "12345"
     mock_get_segment.return_value = {"id": segment_id, "name": "Test Segment", "effort_count": 10}
@@ -20,7 +20,7 @@ def test_get_segment_effort_data(mock_get_segment):
 
 
 def test_get_real_segment_effort_data():
-    config = TestConfig()
+    config = ConfigForTest()
     strava_api = StravaAPI(config)
     segment_id = "11451094"
     segment_effort_data = strava_api.get_segment(segment_id)

@@ -17,7 +17,7 @@ class Config:
         self.DB_NAME = os.getenv("DB_NAME")
 
 
-class TestConfig(Config):
+class ConfigForTest(Config):
     def __init__(self):
         super().__init__()
         self.DB_NAME = os.getenv("TEST_DB_NAME")
