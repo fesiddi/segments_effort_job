@@ -1,14 +1,14 @@
 import unittest
 from unittest.mock import patch
 from services.areas_repository import AreasRepository
-from utils.config import Config
+from utils.config import TestConfig
 
 
 class TestAreasRepository(unittest.TestCase):
     @patch('db.database.Database')
     def test_get_trail_areas(self, mock_db):
         # Arrange
-        config = Config()
+        config = TestConfig()
         mock_db_instance = mock_db.return_value
         mock_db_instance.find_many.return_value = [{
             'name': 'Test Area',

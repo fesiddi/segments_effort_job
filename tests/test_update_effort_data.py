@@ -4,7 +4,7 @@ import pytest
 from unittest.mock import patch
 from db.database import Database
 from models.RawSegment import Map
-from utils.config import Config
+from utils.config import TestConfig
 from models.EnhancedSegment import EnhancedSegment
 from dotenv import load_dotenv
 from services.segments_repository import SegmentsRepository
@@ -38,7 +38,7 @@ def segment():
 
 @pytest.fixture
 def segments_repository():
-    config = Config()
+    config = TestConfig()
     db = Database(config)
     return SegmentsRepository(db, config)
 
