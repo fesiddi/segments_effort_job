@@ -7,7 +7,7 @@ from models.RawSegment import RawSegment
 from services.segments_repository import SegmentsRepository
 from utils.logger import Logger
 from utils.config import Config
-from services.strava_api import StravaAPI
+from services.strava_api import StravaAPI, StravaApiRateLimitExceededError
 from segments_data.segment_ids import segment_ids
 
 
@@ -31,6 +31,12 @@ def main():
                 segments_repository.write_segment_data(enhanced_segment)
     except DatabaseConnectionError as e:
         Logger.error(f"Error fetching segment stats: {e}")
+        sys.exit(1)
+    except StravaApiRateLimitExceededError as e:
+        Logger.error(e)
+        sys.exit(1)
+    except Exception as e:
+        Logger.error(f"Error: {e}")
         sys.exit(1)
     Logger.info("Script execution completed!")
     db.close_connection()
